@@ -16,3 +16,84 @@ load("candidates.rda")
 load("committees.rda")
 load("contributions.rda")
 ```
+
+```{r}
+load("house_elections.rda")
+load("candidates.rda")
+load("committees.rda")
+load("contributions.rda")
+```
+
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+glimpse(house_elections)
+```
+```{r}
+glimpse(candidates)
+```
+#We can conclude democratic and republican are two dominant political parties in the United States rather than other minor parties from the graphics.
+
+```{r}
+# the list of how many candidates in each party and sort it
+can <- candidates %>%
+       group_by(cand_party_affiliation) %>%
+       summarise(number = n())%>%
+       arrange(desc(number))
+can
+graph1<-ggplot(can,aes(x = cand_party_affiliation, y= number)) + geom_bar(stat="identity")
+graph1+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+# find how many candidates in that state
+number <- function(location){
+  candidates %>%
+  filter(cand_state == location) %>%
+  summarise(total = n())
+}
+
+# example1
+number(location = 'CA')
+```
+#We use the candidates data to represent candidates party affiliation on x-axis and numbers of candidates on the y-axis. Republican has 500 more members than democratic does according to the graph. There are 38 parties in USA.
+
+```{r}
+glimpse(committees)
+```
+```{r}
+glimpse(contributions)
+```
+
+
+```{r}
+#find income of each candidate
+x <- candidates %>%
+    inner_join(contributions,by = c("cand_id"="cand_id")) %>%
+    group_by(cand_name) %>%
+    summarise(income = sum(transaction_amt)) %>%
+    arrange(desc(income))
+x
+graph1<-ggplot(x[1:10,], aes(x = cand_name, y = income))+geom_bar(stat="identity")
+
+graph1 + scale_y_continuous(labels = scales::dollar)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+#We concluded that Obama barack and Romney Mitt get the highest contributions. While contribution that Obama gets is around two times of the contribution that Romney gets. Obama is democratic while Romney is republican.
+
+```{r}
+#find the contributions of each parties
+x <- candidates %>%
+    inner_join(contributions,by = c("cand_id"="cand_id")) %>%
+    group_by(cand_party_affiliation) %>%
+    summarise(income = sum(transaction_amt)) %>%
+    select(cand_party_affiliation,income)%>%
+    arrange(desc(income))
+x
+graph1<-ggplot(x[1:10,], aes(x = cand_party_affiliation, y = income))+geom_bar(stat="identity")
+
+graph1 + scale_y_continuous(labels = scales::dollar)+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+#We concluded that democratics get the highest contribution.

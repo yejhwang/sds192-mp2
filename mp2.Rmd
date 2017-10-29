@@ -49,8 +49,9 @@ summarise(joined_three,yrmin = min(cand_election_yr), yrmax = max(cand_election_
 
 joined_three <- joined_three %>%
   filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
-  filter(cand_election_yr >=2009)
+  filter(cand_election_yr >=2009 & cand_election_yr <=2013)
 
+summarise(joined_three,yrmin = min(cand_election_yr), yrmax = max(cand_election_yr), offices = n_distinct(cand_office), num_candID_in_committees = n_distinct(cand_id.y))
 ```
 ```{r}
 house <- joined_three %>%
@@ -61,14 +62,26 @@ presidential <- joined_three %>%
   filter(cand_office == 'P')
 ```
 ```{r}
-#house_2 <- house %>%
- # group_by(cand_election_yr) %>%
-  #spread(cand_party_affiliation, transaction_amt)
- # group_by(cand_election_yr,cand_party_affiliation) %>%
-  
-  
-house_plot <- ggplot(data = house,aes(x = cand_election_yr, y=transaction_amt)) +
+FilL <- c("#232066", "#E91D0E")
+by_office <- function(dtfrm){
+  ggplot(data = dtfrm, aes(x = cand_election_yr, y=transaction_amt, color = cand_party_affiliation), alpha = 0.2) +
   #for individual points to be seen, usage of jitter
-  geom_jitter()
-house_plot
+  geom_jitter() +
+  scale_color_manual(values=FilL, alpha(FilL,alpha = 0.2)) +
+  facet_wrap(~org_type)
+}
+
+by_office(house)
+#lapply(c(house, senate, presidential), FUN = by_office)
 ```
+
+
+```{r}
+pres_plot <- ggplot(data = presidential,aes(x = cand_election_yr, y=transaction_amt, color = cand_party_affiliation), alpha = 0.2) +
+  #for individual points to be seen, usage of jitter
+  geom_jitter() +
+  scale_color_manual(values=FilL, alpha(FilL,alpha = 0.2))
+pres_plot
+```
+
+

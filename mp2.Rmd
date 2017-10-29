@@ -5,13 +5,15 @@ date: "October 31, 2017"
 output: html_document
 ---
 
-```{r, include=FALSE}
+```{r,eval=FALSE}
 ## Loading the data
 load("house_elections.rda")
 load("candidates.rda")
 load("committees.rda")
 load("contributions.rda")
+```
 
+```{r, include=FALSE}
 library(dplyr)
 library(tidyverse)
 library(ggplot2)
@@ -38,20 +40,20 @@ save(contribution_info,file="contribution_info.rda")
 glimpse(contribution_info)
 ```
 
-```{r,eval=FALSE}
+```{r}
+load("candidate_info.rda")
+load("committee_info.rda")
+load("contribution_info.rda")
+
 join_two <- contribution_info %>%
   inner_join(candidate_info, by = c("cand_id"="cand_id"))
 
 joined_three <- join_two %>%
   inner_join(committee_info, by = c("cmte_id"="cmte_id"))
 
-summarise(joined_three,yrmin = min(cand_election_yr), yrmax = max(cand_election_yr), offices = n_distinct(cand_office), num_candID_in_committees = n_distinct(cand_id.y))
-
 joined_three <- joined_three %>%
   filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
   filter(cand_election_yr >=2009 & cand_election_yr <=2013)
-
-summarise(joined_three,yrmin = min(cand_election_yr), yrmax = max(cand_election_yr), offices = n_distinct(cand_office), num_candID_in_committees = n_distinct(cand_id.y))
 ```
 ```{r}
 house <- joined_three %>%
@@ -71,8 +73,26 @@ by_office <- function(dtfrm){
   facet_wrap(~org_type)
 }
 
-by_office(house)
-#lapply(c(house, senate, presidential), FUN = by_office)
+#by_office(house)
+office_dtfrmes <- list(house, senate, presidential)
+lapply(office_dtfrmes, FUN = by_office)
+```
+
+```{r}
+FilL <- c("#232066", "#E91D0E")
+by_office_bar <- function(dtfrm){
+  dtfrm_b <- dtfrm %>%
+    group_by(org_type, cand_party_affiliation) %>%
+    summarize(trans_amt = sum(transaction_amt))
+  ggplot(data = dtfrm_b, aes(x = org_type, y=trans_amt, fill = cand_party_affiliation, color = cand_party_affiliation)) +
+  #for individual points to be seen, usage of jitter
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_manual(values=FilL)
+}
+
+#by_office_bar(house)
+office_dtfrmes <- list(house, senate, presidential)
+lapply(office_dtfrmes, FUN = by_office_bar)
 ```
 
 

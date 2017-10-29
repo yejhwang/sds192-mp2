@@ -19,10 +19,12 @@ load("contributions.rda")
 ```
 
 
-```{r}
+```{r, echo=FALSE}
 library(dplyr)
 library(tidyverse)
 library(ggplot2)
+```
+```{r}
 glimpse(house_elections)
 ```
 ```{r}

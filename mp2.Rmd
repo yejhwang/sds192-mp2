@@ -64,8 +64,16 @@ joined_threes <- joined_three %>%
 #divide joined three to two data sets
 #1 - with org_types
 w_org <- joined_threes %>%
-  filter(org_type != "")
-
+  filter(org_type != "") %>%
+  mutate(org_type = case_when(
+  "C" ~ "Corporation",
+  "L" ~ "Labor organization",
+  "M" ~ "Membership organization",
+  "T" ~ "Trade association",
+  "V" ~ "Cooperative",
+  "W" ~ "Corporation without capital stock",
+  TRUE ~ var)
+  )
 #2 - observations that don't have org_types
 w_o_org <- joined_threes %>%
   filter(org_type == "")
@@ -79,30 +87,17 @@ by_office_bar <- function(dtfrm){
     geom_bar(position="dodge", stat="identity") +
     scale_fill_manual(values=FilL) +
     facet_wrap(cand_office)
-  
-  
-  #C = Corporation
-  #L = Labor organization
-#M = Membership organization
-#T = Trade association
-#V = Cooperative
-#W = Corporation without capital stock
 }
+
 #****because of summarize, object cand_office not found
-#by_office_bar(house)
-office_dtfrmes <- list(house, senate, presidential)
-lapply(office_dtfrmes, FUN = by_office_bar)
-```
 
-```{r}
-#might be able to lapply
 w_org_plot <- by_office_bar(w_org)
-  
-  
-w_o_org_plot <- by_office_bar(w_o_org)
-
 w_org_plot
-w_o_org_plot
+#by_office_bar(w_o_org)
+org_dtfrmes <- list(w_org, w_o_org)
+lapply(org_dtfrmes, FUN = by_office_bar)
 ```
+
+
 
 

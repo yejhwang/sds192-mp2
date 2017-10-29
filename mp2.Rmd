@@ -63,20 +63,6 @@ senate <- joined_three %>%
 presidential <- joined_three %>%
   filter(cand_office == 'P')
 ```
-```{r}
-FilL <- c("#232066", "#E91D0E")
-by_office <- function(dtfrm){
-  ggplot(data = dtfrm, aes(x = cand_election_yr, y=transaction_amt, color = cand_party_affiliation), alpha = 0.2) +
-  #for individual points to be seen, usage of jitter
-  geom_jitter() +
-  scale_color_manual(values=FilL, alpha(FilL,alpha = 0.2)) +
-  facet_wrap(~org_type)
-}
-
-#by_office(house)
-office_dtfrmes <- list(house, senate, presidential)
-lapply(office_dtfrmes, FUN = by_office)
-```
 
 ```{r}
 FilL <- c("#232066", "#E91D0E")
@@ -96,12 +82,5 @@ lapply(office_dtfrmes, FUN = by_office_bar)
 ```
 
 
-```{r}
-pres_plot <- ggplot(data = presidential,aes(x = cand_election_yr, y=transaction_amt, color = cand_party_affiliation), alpha = 0.2) +
-  #for individual points to be seen, usage of jitter
-  geom_jitter() +
-  scale_color_manual(values=FilL, alpha(FilL,alpha = 0.2))
-pres_plot
-```
 
 

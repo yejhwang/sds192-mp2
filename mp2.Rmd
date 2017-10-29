@@ -45,6 +45,7 @@ load("candidate_info.rda")
 load("committee_info.rda")
 load("contribution_info.rda")
 
+#Because inner_join was done specifically to cand_id and not to other_id (FEC ID of the recipient committee or the supported or opposed candidate ID), the data is limited to candidates receiving money from the filing committee directly.
 join_two <- contribution_info %>%
   inner_join(candidate_info, by = c("cand_id"="cand_id"))
 
@@ -66,13 +67,16 @@ presidential <- joined_three %>%
 ```
 
 ```{r}
+joined_threes <- joined_three %>%
+  group_by(cand_office, org_type, cand_party_affiliation) %>%
+    summarize(trans_amt = sum(transaction_amt))
 #divide joined three to two data sets
 #1 - with org_types
-w_org <- joined_three %>%
+w_org <- joined_threes %>%
   filter(org_type != "")
 
 #2 - observations that don't have org_types
-w_o_org <- joined_three %>%
+w_o_org <- joined_threes %>%
   filter(org_type == "")
 
 ```
@@ -80,15 +84,18 @@ w_o_org <- joined_three %>%
 ```{r}
 FilL <- c("#232066", "#E91D0E")
 by_office_bar <- function(dtfrm){
-  #organize data
-  dtfrm_b <- dtfrm %>%
-    group_by(org_type, cand_party_affiliation) %>%
-    summarize(trans_amt = sum(transaction_amt))
-  #plot data
-  ggplot(data = dtfrm_b, aes(x = org_type, y=trans_amt, fill = cand_party_affiliation, color = cand_party_affiliation)) +
+  ggplot(data = dtfrm, aes(x = org_type, y=trans_amt, fill = cand_party_affiliation, color = cand_party_affiliation)) +
     geom_bar(position="dodge", stat="identity") +
     scale_fill_manual(values=FilL) +
     facet_wrap(cand_office)
+  
+  
+  #C = Corporation
+  #L = Labor organization
+#M = Membership organization
+#T = Trade association
+#V = Cooperative
+#W = Corporation without capital stock
 }
 #****because of summarize, object cand_office not found
 #by_office_bar(house)

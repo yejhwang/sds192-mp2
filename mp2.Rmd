@@ -56,15 +56,6 @@ joined_three <- joined_three %>%
   filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
   filter(cand_election_yr >=2009 & cand_election_yr <=2013)
 ```
-```{r}
-#possibly no longer needed
-house <- joined_three %>%
-  filter(cand_office == 'H')
-senate <- joined_three %>%
-  filter(cand_office == 'S')
-presidential <- joined_three %>%
-  filter(cand_office == 'P')
-```
 
 ```{r}
 joined_threes <- joined_three %>%

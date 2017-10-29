@@ -56,6 +56,7 @@ joined_three <- joined_three %>%
   filter(cand_election_yr >=2009 & cand_election_yr <=2013)
 ```
 ```{r}
+#possibly no longer needed
 house <- joined_three %>%
   filter(cand_office == 'H')
 senate <- joined_three %>%
@@ -65,22 +66,45 @@ presidential <- joined_three %>%
 ```
 
 ```{r}
+#divide joined three to two data sets
+#1 - with org_types
+w_org <- joined_three %>%
+  filter(org_type != "")
+
+#2 - observations that don't have org_types
+w_o_org <- joined_three %>%
+  filter(org_type == "")
+
+```
+
+```{r}
 FilL <- c("#232066", "#E91D0E")
 by_office_bar <- function(dtfrm){
+  #organize data
   dtfrm_b <- dtfrm %>%
     group_by(org_type, cand_party_affiliation) %>%
     summarize(trans_amt = sum(transaction_amt))
+  #plot data
   ggplot(data = dtfrm_b, aes(x = org_type, y=trans_amt, fill = cand_party_affiliation, color = cand_party_affiliation)) +
-  #for individual points to be seen, usage of jitter
-  geom_bar(position="dodge", stat="identity") +
-  scale_fill_manual(values=FilL)
+    geom_bar(position="dodge", stat="identity") +
+    scale_fill_manual(values=FilL) +
+    facet_wrap(cand_office)
 }
-
+#****because of summarize, object cand_office not found
 #by_office_bar(house)
 office_dtfrmes <- list(house, senate, presidential)
 lapply(office_dtfrmes, FUN = by_office_bar)
 ```
 
+```{r}
+#might be able to lapply
+w_org_plot <- by_office_bar(w_org)
+  
+  
+w_o_org_plot <- by_office_bar(w_o_org)
 
+w_org_plot
+w_o_org_plot
+```
 
 

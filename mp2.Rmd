@@ -48,7 +48,8 @@ joined_three <- join_two %>%
 summarise(joined_three,yrmin = min(cand_election_yr), yrmax = max(cand_election_yr), offices = n_distinct(cand_office), num_candID_in_committees = n_distinct(cand_id.y))
 
 joined_three <- joined_three %>%
-  filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP"|cand_election_yr >=2009)
+  filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
+  filter(cand_election_yr >=2009)
 
 ```
 ```{r}
@@ -67,6 +68,7 @@ presidential <- joined_three %>%
   
   
 house_plot <- ggplot(data = house,aes(x = cand_election_yr, y=transaction_amt)) +
+  #for individual points to be seen, usage of jitter
   geom_jitter()
 house_plot
 ```

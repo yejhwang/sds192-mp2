@@ -85,20 +85,21 @@ var_to_string <- as_labeller(c(
 
 ```{r}
 FilL <- c("#232066", "#E91D0E")
-by_office_bar <- function(dtfrm){
+by_office_bar <- function(dtfrm,bool){
   ggplot(data = dtfrm, aes(x = org_type, y=trans_amt, fill = cand_party_affiliation)) +
     geom_bar(width=0.8, position = position_dodge(width=0.5), stat="identity") +
     scale_fill_manual(values=FilL) +
-    facet_wrap(~cand_office,labeller=var_to_string) 
+    facet_wrap(~cand_office,labeller=var_to_string, nrow = ifelse(bool, 3, 0)) 
 }
 ```
-```{r,fig.height=7, fig.width=14}
-plot_A <- by_office_bar(w_org) +
-  scale_x_discrete(labels = c("Corporation","Labor org.","Membership \n   org.","Trade \n assoc.","Co-op","Corporation w/o \n capital stock"))
+```{r,fig.height=14, fig.width=14}
+plot_A <- by_office_bar(w_org, TRUE) +
+  scale_x_discrete(labels = c("Corporation","Labor org.","Membership \n   org.","Trade \n assoc.","Co-op","Corporation w/o \n capital stock")) +
+  coord_flip()
 plot_A
 ```
 ```{r}
-plot_B <- by_office_bar(w_o_org) +
+plot_B <- by_office_bar(w_o_org, FALSE) +
   theme(axis.ticks.x =element_blank())
 plot_B
 

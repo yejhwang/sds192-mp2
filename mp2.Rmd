@@ -5,7 +5,7 @@ date: "October 31, 2017"
 output: html_document
 ---
 
-```{r,eval=FALSE}
+```{r, include = FALSE}
 ## Loading the data
 load("house_elections.rda")
 load("candidates.rda")
@@ -13,78 +13,75 @@ load("committees.rda")
 load("contributions.rda")
 ```
 
-```{r, include=FALSE}
+```{r, include = FALSE}
 library(dplyr)
 library(tidyverse)
 library(ggplot2)
 ```
 
 ```{r, eval=FALSE}
-# selected columns for smaller dataframes and saved
+# selected columns for smaller dataframes and saved prior to wrangling
 candidate_info <- candidates %>%
   select(cand_id, cand_name, cand_party_affiliation, cand_election_yr, cand_office)
-
 save(candidate_info,file="candidate_info.rda")
 glimpse(candidate_info)
 
 committee_info <- committees %>%
   select(cmte_id, org_type, cand_id)
-
 save(committee_info,file="committee_info.rda")
 glimpse(committee_info)
 
 contribution_info <- contributions %>%
   select(cmte_id,transaction_amt,cand_id)
-
 save(contribution_info,file="contribution_info.rda")
 glimpse(contribution_info)
 ```
-
+####Data Wrangling
 ```{r}
+# Load created data ------------------------------------------------
 load("candidate_info.rda")
 load("committee_info.rda")
 load("contribution_info.rda")
 
-#Because inner_join was done specifically to cand_id and not to other_id (FEC ID of the recipient committee or the supported or opposed candidate ID), the data is limited to candidates receiving money from the filing committee directly.
+# Use inner_join to combine datasets -------------------------------
 join_two <- contribution_info %>%
   inner_join(candidate_info, by = c("cand_id"="cand_id"))
 
 joined_three <- join_two %>%
   inner_join(committee_info, by = c("cmte_id"="cmte_id"))
 
+# Filter data for only Democratic, Republican, and for the years 2009-2013
 joined_three <- joined_three %>%
   filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
   filter(cand_election_yr >=2009 & cand_election_yr <=2013)
 ```
-
+Because `inner_join` was done specifically to `cand_id` and not to `other_id` (FEC ID of the recipient committee or the supported or opposed candidate ID), the data is limited to candidates receiving money from the filing committee directly.
 ```{r}
+#sum up individual transactions --------------------------------------
 joined_threes <- joined_three %>%
   group_by(cand_office, org_type, cand_party_affiliation) %>%
   summarize(trans_amt = sum(transaction_amt)) %>%
   mutate(trans_amt = trans_amt/10^6)
-
-#divide joined three to two data sets
+#divide joined_three to two data sets --------------------------------
 #1 - with org_types
 w_org <- joined_threes %>%
   filter(org_type != "") 
 #2 - observations that don't have org_types
 w_o_org <- joined_threes %>%
   filter(org_type == "")
-
 ```
-
 ```{r}
-#rename office labels for facet_wrap
+#rename office labels for facet_wrap ---------------------------------
+#(to be used when plotting)
 var_to_string <- as_labeller(c(
   'H' = "House",
   'S'="Senate",
   "P" = "Presidential"
 ))
-
 ```
-
-
+####Usage of function()
 ```{r}
+#function for plotting basic aesthetics of data
 FilL <- c("#232066", "#E91D0E")
 by_office_bar <- function(dtfrm){
   ggplot(data = dtfrm, aes(x = org_type, y=trans_amt, fill = cand_party_affiliation)) +
@@ -95,6 +92,8 @@ by_office_bar <- function(dtfrm){
     scale_y_continuous(labels = scales::dollar_format())
 }
 ```
+####Tailoring the Graphs:
+##Graph A
 ```{r,fig.height=9, fig.width=14}
 plot_A <- by_office_bar(w_org) +
   scale_x_discrete(labels = c("Corp.","Labor\n  org.","Membership\n   org.","Trade \n assoc.","Co-op","Corp. w/o \n capital stock")) +
@@ -103,6 +102,16 @@ plot_A <- by_office_bar(w_org) +
           legend.text = element_text(face="bold",size = 10))
 plot_A
 ```
+
+
+
+
+
+This graph shows
+Yet, there was a significant amount of other transactions 
+**explaining in a single coherent sentence what we can learn from these data**
+
+##Graph B
 ```{r,fig.height=5, fig.width=5}
 plot_B <- by_office_bar(w_o_org) +
   theme(axis.ticks.x =element_blank()) +
@@ -112,7 +121,8 @@ plot_B <- by_office_bar(w_o_org) +
 plot_B
 
 ```
-
+This graph shows
+**blog post text provides context or background useful in interpreting the graphic**
 
 
 

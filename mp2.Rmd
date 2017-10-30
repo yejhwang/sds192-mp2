@@ -60,7 +60,8 @@ joined_three <- joined_three %>%
 ```{r}
 joined_threes <- joined_three %>%
   group_by(cand_office, org_type, cand_party_affiliation) %>%
-    summarize(trans_amt = sum(transaction_amt))
+  summarize(trans_amt = sum(transaction_amt)) %>%
+  mutate(trans_amt = trans_amt/10^6)
 
 #divide joined three to two data sets
 #1 - with org_types
@@ -90,19 +91,24 @@ by_office_bar <- function(dtfrm){
     geom_bar(width=0.8, position = position_dodge(width=0.6), stat="identity") +
     scale_fill_manual(values=FilL, name = "Candidate Party\n   Affiliation") +
     facet_wrap(~cand_office,labeller=var_to_string) +
-    labs(x="Organization Type",y="Transaction Amount") +
-    scale_y_continuous(labels = scales::dollar_format(prefix, suffix))
-  #divide & state in y-axis label in thousands or millions rather than suffix
+    labs(x="Organization Type",y="Transaction Amount\n(in Millions)") +
+    scale_y_continuous(labels = scales::dollar_format())
 }
 ```
-```{r,fig.height=7, fig.width=14}
+```{r,fig.height=9, fig.width=14}
 plot_A <- by_office_bar(w_org) +
-  scale_x_discrete(labels = c("Corp.","Labor\n  org.","Membership\n   org.","Trade \n assoc.","Co-op","Corp. w/o \n capital stock")) 
+  scale_x_discrete(labels = c("Corp.","Labor\n  org.","Membership\n   org.","Trade \n assoc.","Co-op","Corp. w/o \n capital stock")) +
+    theme(strip.text = element_text(face="bold", size = 15),
+          axis.text=element_text(size=8),
+          legend.text = element_text(face="bold",size = 10))
 plot_A
 ```
-```{r}
+```{r,fig.height=5, fig.width=5}
 plot_B <- by_office_bar(w_o_org) +
-  theme(axis.ticks.x =element_blank())
+  theme(axis.ticks.x =element_blank()) +
+    theme(strip.text = element_text(face="bold", size = 7),
+          axis.text=element_text(size=6),
+          legend.text = element_text(face="bold",size = 7))
 plot_B
 
 ```

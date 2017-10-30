@@ -54,15 +54,7 @@ joined_three <- join_two %>%
 
 joined_three <- joined_three %>%
   filter(cand_party_affiliation == "DEM" | cand_party_affiliation == "REP") %>%
-  filter(cand_election_yr >=2009 & cand_election_yr <=2013) %>%
-  mutate(org_type = case_when(
-  org_type == "C" ~ "Corporation",
-  org_type == "L" ~ "Labor organization",
-  org_type == "M" ~ "Membership organization",
-  org_type == "T" ~ "Trade association",
-  org_type == "V" ~ "Cooperative",
-  org_type == "W" ~ "Corporation without capital stock",
-  TRUE ~ org_type))
+  filter(cand_election_yr >=2009 & cand_election_yr <=2013)
 ```
 
 ```{r}
@@ -81,16 +73,34 @@ w_o_org <- joined_threes %>%
 ```
 
 ```{r}
+#rename office labels for facet_wrap
+var_to_string <- as_labeller(c(
+  'H' = "House",
+  'S'="Senate",
+  "P" = "Presidential"
+))
+
+```
+
+
+```{r}
 FilL <- c("#232066", "#E91D0E")
 by_office_bar <- function(dtfrm){
   ggplot(data = dtfrm, aes(x = org_type, y=trans_amt, fill = cand_party_affiliation)) +
-    geom_bar(position="dodge", stat="identity") +
+    geom_bar(width=0.8, position = position_dodge(width=0.5), stat="identity") +
     scale_fill_manual(values=FilL) +
-    facet_wrap(~cand_office)
+    facet_wrap(~cand_office,labeller=var_to_string) 
 }
-
-org_dtfrmes <- list(w_org, w_o_org)
-lapply(org_dtfrmes, FUN = by_office_bar)
+```
+```{r,fig.height=7, fig.width=14}
+plot_A <- by_office_bar(w_org) +
+  scale_x_discrete(labels = c("Corporation","Labor org.","Membership \n   org.","Trade \n assoc.","Co-op","Corporation w/o \n capital stock"))
+plot_A
+```
+```{r}
+plot_B <- by_office_bar(w_o_org) +
+  theme(axis.ticks.x =element_blank())
+plot_B
 
 ```
 
